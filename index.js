@@ -5,9 +5,11 @@ const authRoutes = require("./routes/authRoute");
 const UserRoutes = require("./routes/userRoute");
 const movieRoute = require("./routes/movies");
 const listRoute = require("./routes/lists");
+var cors = require("cors");
 env.config();
-const app = express();
 
+const app = express();
+app.use(cors());
 app.use(express.json());
 
 //routes
