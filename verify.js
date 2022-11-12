@@ -8,8 +8,14 @@ const verify = (req, res, next) => {
     return res.status(401).json("You are not authenticated!");
   } else {
     jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
-      req.user = decoded;
-      next();
+      if (err) {
+        console.log(token);
+        res.status(403).json("Token is not valid!");
+      } else {
+        req.user = decoded;
+        console.log(decoded);
+        next();
+      }
     });
   }
 };

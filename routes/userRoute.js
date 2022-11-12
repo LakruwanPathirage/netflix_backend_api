@@ -76,6 +76,7 @@ route.get("/find/:id", async (req, res) => {
 //GET ALL
 route.get("/", verify, async (req, res) => {
   const query = req.query.new;
+  console.log("ll", req.user);
   if (req.user.isAdmin) {
     try {
       const users = query
@@ -91,7 +92,7 @@ route.get("/", verify, async (req, res) => {
 });
 
 //GET USER STATS
-route.get("/stats", async (req, res) => {
+route.get("/stats", verify, async (req, res) => {
   const today = new Date();
   const latYear = today.setFullYear(today.setFullYear() - 1);
   console.log("last yr", latYear);

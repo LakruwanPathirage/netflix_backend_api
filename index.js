@@ -6,6 +6,7 @@ const UserRoutes = require("./routes/userRoute");
 const movieRoute = require("./routes/movies");
 const listRoute = require("./routes/lists");
 var cors = require("cors");
+var ErrorHandler = require("./customErrorHnadler");
 env.config();
 
 const app = express();
@@ -17,7 +18,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", UserRoutes);
 app.use("/api/movies", movieRoute);
 app.use("/api/lists", listRoute);
-
+app.use(ErrorHandler);
 mongoose
   .connect(process.env.MONGO_DB_URL, {
     useNewUrlParser: true,
