@@ -33,6 +33,27 @@ router.delete("/:id", verify, async (req, res) => {
   }
 });
 
+//update
+
+router.put("/:id", verify, async (req, res) => {
+  if (req.user.isAdmin) {
+    try {
+      const updatedList = await List.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: req.body,
+        },
+        { new: true }
+      );
+      res.status(200).json(updatedList);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  } else {
+    res.status(403).json("You are not allowed!");
+  }
+});
+
 //GET
 
 router.get("/", verify, async (req, res) => {
@@ -54,6 +75,92 @@ router.get("/", verify, async (req, res) => {
       }
     } else {
       list = await List.aggregate([{ $sample: { size: 10 } }]);
+    }
+    res.status(200).json(list);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+//GET with movie items
+
+router.get("/getListRefs", verify, async (req, res) => {
+  const typeQuery = req.query.type;
+  const genreQuery = req.query.genre;
+  console.log("jj", req.query);
+  let list = [];
+  try {
+    if (typeQuery) {
+      if (genreQuery) {
+        // list = await List.aggregate([
+        //   { $sample: { size: 10 } },
+        //   { $match: { type: typeQuery, genre: genreQuery } },
+        //   {
+        //     $lookup: {
+        //       from: "$movies",
+        //       foreignField: "_id",
+        //       localField: "content",
+        //       as: "content",
+        //     },
+        //   },
+        // ]);
+
+        list = await List.find({ type: typeQuery, genre: genreQuery }).populate(
+          {
+            path: "content",
+            options: {
+              limit: 10,
+            },
+          }
+        );
+      } else {
+        // list = await List.aggregate([
+        //   { $sample: { size: 10 } },
+        //   { $match: { type: typeQuery } },
+        //   {
+        //     $lookup: {
+        //       from: "$movies",
+        //       foreignField: "_id",
+        //       localField: "content",
+        //       as: "content",
+        //     },
+        //   },
+        // ]);
+
+        list = await List.find({ type: typeQuery }).populate({
+          path: "content",
+          options: {
+            limit: 10,
+          },
+        });
+      }
+    } else {
+      // list = await List.aggregate([
+      //   { $sample: { size: 4 } },
+      // {
+      //   $lookup: {
+      //     from: "$movies",
+      //     foreignField: "_id",
+      //     localField: "content",
+      //     as: "content",
+      //   },
+      // },
+      // { $unwind: "$content" },
+      // {
+      //   $lookup: {
+      //     from: "$movies",
+      //     foreignField: "_id",
+      //     localField: "content",
+      //     as: "content",
+      //   },
+      // },
+      // ]);
+      list = await List.find().populate({
+        path: "content",
+        options: {
+          limit: 10,
+        },
+      });
     }
     res.status(200).json(list);
   } catch (err) {
