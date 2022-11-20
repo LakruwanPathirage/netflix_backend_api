@@ -92,78 +92,72 @@ router.get("/getListRefs", verify, async (req, res) => {
   try {
     if (typeQuery) {
       if (genreQuery) {
-        // list = await List.aggregate([
-        //   { $sample: { size: 10 } },
-        //   { $match: { type: typeQuery, genre: genreQuery } },
-        //   {
-        //     $lookup: {
-        //       from: "$movies",
-        //       foreignField: "_id",
-        //       localField: "content",
-        //       as: "content",
-        //     },
-        //   },
-        // ]);
-
-        list = await List.find({ type: typeQuery, genre: genreQuery }).populate(
+        list = await List.aggregate([
+          { $sample: { size: 10 } },
+          { $match: { type: typeQuery, genre: genreQuery } },
           {
-            path: "content",
-            options: {
-              limit: 10,
+            $lookup: {
+              from: "movies",
+              foreignField: "_id",
+              localField: "content",
+              as: "content",
             },
-          }
-        );
-      } else {
-        // list = await List.aggregate([
-        //   { $sample: { size: 10 } },
-        //   { $match: { type: typeQuery } },
-        //   {
-        //     $lookup: {
-        //       from: "$movies",
-        //       foreignField: "_id",
-        //       localField: "content",
-        //       as: "content",
-        //     },
-        //   },
-        // ]);
-
-        list = await List.find({ type: typeQuery }).populate({
-          path: "content",
-          options: {
-            limit: 10,
           },
-        });
+        ]);
+        //This populate is also working
+        // list = await List.find({ type: typeQuery, genre: genreQuery }).populate(
+        //   {
+        //     path: "content",
+        //     options: {
+        //       limit: 10,
+        //     },
+        //   }
+        // );
+      } else {
+        list = await List.aggregate([
+          { $sample: { size: 10 } },
+          { $match: { type: typeQuery } },
+          {
+            $lookup: {
+              from: "movies",
+              foreignField: "_id",
+              localField: "content",
+              as: "content",
+            },
+          },
+        ]);
       }
     } else {
-      // list = await List.aggregate([
-      //   { $sample: { size: 4 } },
-      // {
-      //   $lookup: {
-      //     from: "$movies",
-      //     foreignField: "_id",
-      //     localField: "content",
-      //     as: "content",
+      //This populate is also working
+      // list = await List.find().populate({
+      //   path: "content",
+      //   options: {
+      //     limit: 10,
       //   },
-      // },
-      // { $unwind: "$content" },
-      // {
-      //   $lookup: {
-      //     from: "$movies",
-      //     foreignField: "_id",
-      //     localField: "content",
-      //     as: "content",
-      //   },
-      // },
-      // ]);
-      list = await List.find().populate({
-        path: "content",
-        options: {
-          limit: 10,
-        },
-      });
+      // });
+
+      list = await List.aggregate([
+        [
+          {
+            $sample: {
+              size: 10,
+            },
+          },
+          {
+            $lookup: {
+              from: "movies",
+              foreignField: "_id",
+              localField: "content",
+              as: "content",
+            },
+          },
+        ],
+      ]);
     }
+    console.log(list);
     res.status(200).json(list);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 });
