@@ -69,19 +69,40 @@ router.get("/find/:id", verify, async (req, res) => {
 
 router.get("/random", verify, async (req, res) => {
   const type = req.query.type;
+  const genere = req.query.genre;
+  console.log("gnere", genere);
   let movie;
   try {
     if (type === "series") {
-      movie = await Movie.aggregate([
-        { $match: { isSeries: true } },
-        { $sample: { size: 1 } },
-      ]);
+      if (genere) {
+        console.log("series and yes genre");
+        movie = await Movie.aggregate([
+          { $match: { isSeries: true, genre: genere } },
+          { $sample: { size: 1 } },
+        ]);
+      } else {
+        console.log("series and no genre");
+        movie = await Movie.aggregate([
+          { $match: { isSeries: true } },
+          { $sample: { size: 1 } },
+        ]);
+      }
     } else {
-      movie = await Movie.aggregate([
-        { $match: { isSeries: false } },
-        { $sample: { size: 1 } },
-      ]);
+      if (genere) {
+        console.log("movies and yes genre");
+        movie = await Movie.aggregate([
+          { $match: { isSeries: false, genre: genere } },
+          { $sample: { size: 1 } },
+        ]);
+      } else {
+        console.log("movies and no genre");
+        movie = await Movie.aggregate([
+          { $match: { isSeries: false } },
+          { $sample: { size: 1 } },
+        ]);
+      }
     }
+
     res.status(200).json(movie);
   } catch (err) {
     res.status(500).json(err);

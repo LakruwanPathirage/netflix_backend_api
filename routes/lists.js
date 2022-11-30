@@ -87,7 +87,7 @@ router.get("/", verify, async (req, res) => {
 router.get("/getListRefs", verify, async (req, res) => {
   const typeQuery = req.query.type;
   const genreQuery = req.query.genre;
-  console.log("jj", req.query);
+
   let list = [];
   try {
     if (typeQuery) {
@@ -154,7 +154,7 @@ router.get("/getListRefs", verify, async (req, res) => {
         ],
       ]);
     }
-    console.log(list);
+
     res.status(200).json(list);
   } catch (err) {
     console.log(err);

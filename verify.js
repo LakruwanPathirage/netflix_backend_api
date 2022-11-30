@@ -9,11 +9,10 @@ const verify = (req, res, next) => {
   } else {
     jwt.verify(token, process.env.JWT_SECRET, function (err, decoded) {
       if (err) {
-        console.log(token);
         res.status(403).json("Token is not valid!");
       } else {
         req.user = decoded;
-        console.log(decoded);
+
         next();
       }
     });
